@@ -30,6 +30,7 @@ import me.jellysquid.mods.sodium.common.util.DirectionUtil;
 import me.jellysquid.mods.sodium.common.util.IdTable;
 import me.jellysquid.mods.sodium.common.util.collections.FutureDequeDrain;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3f;
@@ -503,7 +504,8 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
     }
 
     public int getTotalSections() {
-        return this.columns.size() * 16;
+        int renderDistance = MinecraftClient.getInstance().options.viewDistance * 2 + 1;
+        return renderDistance * 16 * renderDistance;
     }
 
     public void scheduleRebuild(int x, int y, int z, boolean important) {

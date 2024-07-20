@@ -204,9 +204,12 @@ public class SodiumWorldRenderer implements ChunkStatusListener {
     public void drawChunkLayer(RenderLayer renderLayer, MatrixStack matrixStack, double x, double y, double z) {
         BlockRenderPass pass = this.renderPassManager.getRenderPassForLayer(renderLayer);
         pass.startDrawing();
+        this.client.getProfiler().push("filterempty");
+        this.client.getProfiler().swap(() -> "render_" + renderLayer);
 
         this.chunkRenderManager.renderLayer(matrixStack, pass, x, y, z);
 
+        this.client.getProfiler().pop();
         pass.endDrawing();
 
         RenderSystem.clearCurrentColor();
