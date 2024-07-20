@@ -33,6 +33,9 @@ public class BlockOcclusionCache {
         adjPos.set(pos.getX() + facing.getOffsetX(), pos.getY() + facing.getOffsetY(), pos.getZ() + facing.getOffsetZ());
 
         BlockState adjState = view.getBlockState(adjPos);
+        if (adjState == null) {
+            return false;
+        }
 
         if (selfState.isSideInvisible(adjState, facing)) {
             return false;

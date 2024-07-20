@@ -503,7 +503,8 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
     }
 
     public int getTotalSections() {
-        return this.renders.size();
+        int renderDistance = MinecraftClient.getInstance().options.viewDistance * 2 + 1;
+        return renderDistance * 16 * renderDistance;
     }
 
     public void scheduleRebuild(int x, int y, int z, boolean important) {
