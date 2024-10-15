@@ -48,6 +48,11 @@ public class SodiumMixinPlugin implements IMixinConfigPlugin {
         String mixin = mixinClassName.substring(MIXIN_PACKAGE_ROOT.length());
         Option option = this.config.getEffectiveOptionForMixin(mixin);
 
+        // HACK: allow all cullvis mixins
+        if (mixin.startsWith("cullvis")) {
+            return true;
+        }
+
         if (option == null) {
             this.logger.error("No rules matched mixin '{}', treating as foreign and disabling!", mixin);
 

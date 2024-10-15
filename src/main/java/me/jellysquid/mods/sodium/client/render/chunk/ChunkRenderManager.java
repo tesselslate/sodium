@@ -84,7 +84,7 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
     private final SodiumWorldRenderer renderer;
     private final ClientWorld world;
 
-    private final ChunkCuller culler;
+    public final ChunkCuller culler;
     private final boolean useBlockFaceCulling;
 
     private float cameraX, cameraY, cameraZ;

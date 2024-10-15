@@ -3,21 +3,19 @@ package me.jellysquid.mods.sodium.client.render.chunk.cull.graph;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import me.jellysquid.mods.sodium.client.cullvis.CullInfo;
+import me.jellysquid.mods.sodium.client.cullvis.CullState;
+import me.jellysquid.mods.sodium.client.cullvis.CullingVisualizer;
 import me.jellysquid.mods.sodium.client.render.chunk.cull.ChunkCuller;
 import me.jellysquid.mods.sodium.client.util.math.FrustumExtended;
 import me.jellysquid.mods.sodium.common.util.DirectionUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.chunk.ChunkOcclusionData;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class ChunkGraphCuller implements ChunkCuller {
     private final Long2ObjectMap<ChunkGraphNode> nodes = new Long2ObjectOpenHashMap<>();
@@ -39,26 +37,48 @@ public class ChunkGraphCuller implements ChunkCuller {
 
     @Override
     public IntArrayList computeVisible(Camera camera, FrustumExtended frustum, int frame, boolean spectator) {
+        CullState.getInstance().visible = new HashSet<>();
+
+        // for investigation purposes: this method really only enqueues
+        // the root node (the subchunk the camera is in)
         this.initSearch(camera, frustum, frame, spectator);
 
         ChunkGraphIterationQueue queue = this.visible;
+
+        // cullvis
+        HashMap<Vec3i, CullInfo> chunks = new HashMap<>();
 
         for (int i = 0; i < queue.size(); i++) {
             ChunkGraphNode node = queue.getNode(i);
             Direction flow = queue.getDirection(i);
 
+            // cullvis
+            Vec3i pos = new Vec3i(node.getChunkX(), node.getChunkY(), node.getChunkZ());
+            if (!chunks.containsKey(pos)) {
+                chunks.put(pos, new CullInfo());
+
+            }
+
             for (Direction dir : DirectionUtil.ALL_DIRECTIONS) {
-                if (this.isCulled(node, flow, dir)) {
+                boolean isCulled = this.isCulled(node, flow, dir);
+                CullInfo info = chunks.get(pos);
+                info.culled = isCulled && info.culled;
+                if (isCulled) {
                     continue;
                 }
 
+                // adj != null check is to prevent going backwards in the graph i think
                 ChunkGraphNode adj = node.getConnectedNode(dir);
 
                 if (adj != null && this.isWithinRenderDistance(adj)) {
                     this.bfsEnqueue(node, adj, dir.getOpposite());
+                    chunks.get(pos).checkDirs[dir.getId()] = true;
                 }
             }
         }
+
+        // cullvis
+        CullState.getInstance().cullInfo = chunks;
 
         return this.visible.getOrderedIdList();
     }
@@ -106,7 +126,11 @@ public class ChunkGraphCuller implements ChunkCuller {
             }
 
             this.visible.add(rootNode, null);
+            CullState.getInstance().visible.add(new Vec3i(rootNode.getChunkX(), rootNode.getChunkY(), rootNode.getChunkZ()));
         } else {
+            // for chunk culling investigations: ignore
+            // i think this case only ever gets hit when the subchunk the camera is in
+            // is not loaded
             chunkY = MathHelper.clamp(origin.getY() >> 4, 0, 15);
 
             List<ChunkGraphNode> bestNodes = new ArrayList<>();
@@ -147,6 +171,7 @@ public class ChunkGraphCuller implements ChunkCuller {
         node.setLastVisibleFrame(this.activeFrame);
         node.setCullingState(parent.getCullingState(), flow);
 
+        CullState.getInstance().visible.add(new Vec3i(node.getChunkX(), node.getChunkY(), node.getChunkZ()));
         this.visible.add(node, flow);
     }
 

@@ -12,14 +12,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Frustum.class)
 public class MixinFrustum implements FrustumExtended {
-    private float xF, yF, zF;
+    public float xF, yF, zF;
 
-    private float nxX, nxY, nxZ, nxW;
-    private float pxX, pxY, pxZ, pxW;
-    private float nyX, nyY, nyZ, nyW;
-    private float pyX, pyY, pyZ, pyW;
-    private float nzX, nzY, nzZ, nzW;
-    private float pzX, pzY, pzZ, pzW;
+    public float nxX, nxY, nxZ, nxW;
+    public float pxX, pxY, pxZ, pxW;
+    public float nyX, nyY, nyZ, nyW;
+    public float pyX, pyY, pyZ, pyW;
+    public float nzX, nzY, nzZ, nzW;
+    public float pzX, pzY, pzZ, pzW;
 
     @Inject(method = "setPosition", at = @At("HEAD"))
     private void prePositionUpdate(double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {

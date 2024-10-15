@@ -1,0 +1,694 @@
+diff --git a/README.md b/README.md
+index 4ebe7b5..0418da1 100644
+--- a/README.md
++++ b/README.md
+@@ -1,109 +1,22 @@
+-![Project icon](https://git-assets.jellysquid.me/hotlink-ok/sodium/icon-rounded-128px.png)
++# sodium-fabric
+ 
+-# Sodium Ports (for Fabric)
+-![GitHub license](https://img.shields.io/github/license/jan-leila/sodium-fabric.svg)
+-![GitHub issues](https://img.shields.io/github/issues/jan-leila/sodium-fabric.svg)
+-![GitHub tag](https://img.shields.io/github/tag/jan-leila/sodium-fabric.svg)
++Fork of Sodium speedrunning build for visualizing chunk culling behavior.
+ 
+-Sodium is a free and open-source optimization mod for the Minecraft client that improves frame rates, reduces
+-micro-stutter, and fixes graphical issues in Minecraft. 
++# Usage
+ 
+-These are unofficial ports of [JellySquid's original mod](https://github.com/jellysquid3/sodium-fabric) to versions
+-that aren't maintained or present upstream. 1.15.2 and 1.16.1 are the current priority, ports for 1.17 snapshots will
+-be considered as they're released, and a 1.14 port is not planned.
++Press F3+G (chunk borders) to show culling information.
+ 
+-:warning: Sodium has had a lot of time to shape up lately, but the mod is still alpha software. You may run into small
+-graphical issues or crashes while using it. Additionally, the
+-[Fabric Rendering API](https://fabricmc.net/wiki/documentation:rendering) is not yet supported, which may cause crashes
+-and other issues with a number of mods.
++# Commands
+ 
+----
++## /capture_chunks
+ 
+-## Installation
++Store the currently visible subchunks and other culling-related information to
++be looked at with F3+G.
+ 
+-### Manual installation (recommended)
++## /toggle_chunk_borders
+ 
+-You will need Fabric Loader 0.10.x or newer installed in your game in order to load Sodium. If you haven't installed
+-Fabric mods before, you can find a variety of community guides for doing so [here](https://fabricmc.net/wiki/install).
++Toggles normal chunk borders showing with F3+G.
+ 
+-#### Stable releases
++## /toggle_culling
+ 
+-![GitHub release](https://img.shields.io/github/release/jan-leila/sodium-fabric.svg)
+-
+-The latest releases of Sodium are published to our [GitHub release](https://github.com/jan-leila/sodium-fabric/releases) page.
+-Releases are considered by our team to be **suitable for general use**, but they are not guaranteed to be free of bugs and other issues.
+-
+-#### Bleeding-edge builds (unstable)
+-
+-[![GitHub build status](https://img.shields.io/github/workflow/status/jan-leila/sodium-fabric/gradle-ci/1.16.1/next)](https://github.com/jan-leila/sodium-fabric/actions/workflows/gradle.yml)
+-
+-If you are a player who is looking to get your hands on the latest **bleeding-edge changes for testing**, consider
+-taking a look at the automated builds produced through our [GitHub Actions workflow](https://github.com/jan-leila/sodium-fabric/actions/workflows/gradle.yml?query=event%3Apush).
+-This workflow automatically runs every time a change is pushed to the repository, and as such, the builds it produces
+-will generally reflect the latest snapshot of development.
+-
+-Bleeding edge builds will often include unfinished code that hasn't been extensively tested. That code may introduce
+-incomplete features, bugs, crashes, and all other kinds of weird issues. You **should not use these bleeding edge builds**
+-unless you know what you are doing and are comfortable with software debugging. If you report issues using these builds,
+-we will expect that this is the case. Caveat emptor.
+-
+----
+-
+-### Reporting Issues
+-
+-You can report bugs and crashes by opening an issue on our [issue tracker](https://github.com/jan-leila/sodium-fabric/issues).
+-Before opening a new issue, use the search tool to make sure that your issue has not already been reported and ensure
+-that you have completely filled out the issue template. Issues which are duplicates or do not contain the necessary
+-information to triage and debug may be closed. 
+-
+-Please note that while the issue tracker is open to feature requests, development is primarily focused on
+-improving hardware compatibility, performance, and finishing any unimplemented features necessary for parity with
+-the vanilla renderer.
+-
+----
+-
+-### Building from sources
+-
+-Support is not provided for setting up build environments or compiling the mod. We ask that
+-users who are looking to get their hands dirty with the code have a basic understanding of compiling Java/Gradle
+-projects. The basic overview is provided here for those familiar.
+-
+-Warning, I will likely be force pushing updates.
+-
+-#### Requirements
+-
+-- JRE 8 or newer (for running Gradle)
+-- JDK 8 (optional)
+-  - If you neither have JDK 8 available on your shell's path or installed through a supported package manager (such as
+-[SDKMAN](https://sdkman.io)), Gradle will automatically download a suitable toolchain from the [AdoptOpenJDK project](https://adoptopenjdk.net/)
+-and use it to compile the project. For more information on what package managers are supported and how you can
+-customize this behavior on a system-wide level, please see [Gradle's Toolchain user guide](https://docs.gradle.org/current/userguide/toolchains.html).
+-- Gradle 6.7 or newer (optional)
+-  - The [Gradle wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html#sec:using_wrapper) is provided in
+-    this repository can be used instead of installing a suitable version of Gradle yourself. However, if you are building
+-    many projects, you may prefer to install it yourself through a suitable package manager as to save disk space and to
+-    avoid many different Gradle daemons sitting around in memory.
+-
+-#### Building with Gradle
+-
+-Sodium uses a typical Gradle project structure and can be built by simply running the default `build` task. After Gradle
+-finishes building the project, you can find the build artifacts (typical mod binaries, and their sources) in
+-`build/libs`.
+-
+-**Tip:** If this is a one-off build, and you would prefer the Gradle daemon does not stick around in memory afterwards,
+-try adding the [`--no-daemon` flag](https://docs.gradle.org/current/userguide/gradle_daemon.html#sec:disabling_the_daemon)
+-to ensure that the daemon is torn down after the build is complete. However, subsequent builds of the project will
+-[start more slowly](https://docs.gradle.org/current/userguide/gradle_daemon.html#sec:why_the_daemon) if the Gradle
+-daemon is not available to be re-used.
+-
+-
+-Build artifacts ending in `dev` are outputs containing the sources and compiled classes
+-before they are remapped into stable intermediary names. If you are working in a developer environment and would
+-like to add the mod to your game, you should prefer to use the `modRuntime` or `modCompile` configurations provided by
+-Loom instead of these outputs.
+-
+----
+-### License
+-
+-Sodium is licensed under GNU LGPLv3, a free and open-source license. For more information, please see the
+-[license file](https://github.com/jan-leila/sodium-fabric/blob/1.16.1/stable/LICENSE.txt).
++Executing once turns culling off, executing again turns culling back on, etc.
+\ No newline at end of file
+diff --git a/build.gradle b/build.gradle
+index cca6a49..adddf62 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -37,6 +37,7 @@ dependencies {
+     minecraft "com.mojang:minecraft:${project.minecraft_version}"
+     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
++    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+ }
+ 
+ if (project.use_third_party_mods) {
+diff --git a/gradle.properties b/gradle.properties
+index 7fa8491..0b8b741 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -7,6 +7,7 @@ mod_id=sodium
+ minecraft_version=1.16.1
+ yarn_mappings=1.16.1+build.21
+ loader_version=0.11.3
++fabric_version=0.18.0+build.387-1.16.1
+ 
+ # If true, third-party mods will be loaded during runtime in the developer run configurations
+ use_third_party_mods = true
+diff --git a/src/main/java/me/jellysquid/mods/sodium/client/SodiumClientMod.java b/src/main/java/me/jellysquid/mods/sodium/client/SodiumClientMod.java
+index f404951..93f3963 100644
+--- a/src/main/java/me/jellysquid/mods/sodium/client/SodiumClientMod.java
++++ b/src/main/java/me/jellysquid/mods/sodium/client/SodiumClientMod.java
+@@ -1,5 +1,6 @@
+ package me.jellysquid.mods.sodium.client;
+ 
++import me.jellysquid.mods.sodium.client.cullvis.Commands;
+ import me.jellysquid.mods.sodium.client.gui.SodiumGameOptions;
+ import me.jellysquid.mods.sodium.client.util.UnsafeUtil;
+ import net.fabricmc.api.ClientModInitializer;
+@@ -23,6 +24,8 @@ public class SodiumClientMod implements ClientModInitializer {
+         MOD_VERSION = mod.getMetadata()
+                 .getVersion()
+                 .getFriendlyString();
++
++        Commands.initialize();
+     }
+ 
+     public static SodiumGameOptions options() {
+diff --git a/src/main/java/me/jellysquid/mods/sodium/client/cullvis/Commands.java b/src/main/java/me/jellysquid/mods/sodium/client/cullvis/Commands.java
+new file mode 100644
+index 0000000..3355bb8
+--- /dev/null
++++ b/src/main/java/me/jellysquid/mods/sodium/client/cullvis/Commands.java
+@@ -0,0 +1,43 @@
++package me.jellysquid.mods.sodium.client.cullvis;
++
++import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
++import net.minecraft.client.MinecraftClient;
++import net.minecraft.text.LiteralText;
++
++import static net.minecraft.server.command.CommandManager.literal;
++
++public class Commands {
++    public static void initialize() {
++        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
++            // capture_chunks
++            dispatcher.register(
++                    literal("capture_chunks").executes(ctx -> {
++                        CullingVisualizer.state.cullInfo = CullState.getInstance().cullInfo;
++                        CullingVisualizer.state.visible = CullState.getInstance().visible;
++                        ctx.getSource().sendFeedback(new LiteralText("Chunks visible: " + CullingVisualizer.state.visible.size()), false);
++                        return 1;
++                    })
++            );
++
++            // toggle_chunk_borders
++            dispatcher.register(
++                    literal("toggle_chunk_borders")
++                            .executes(ctx -> {
++                                CullState.getInstance().drawChunkBorders = !CullState.getInstance().drawChunkBorders;
++                                return 1;
++                            })
++            );
++
++            // toggle_culling
++            dispatcher.register(
++                    literal("toggle_culling")
++                            .executes(ctx -> {
++                                MinecraftClient instance = MinecraftClient.getInstance();
++                                instance.chunkCullingEnabled = !instance.chunkCullingEnabled;
++                                ctx.getSource().sendFeedback(new LiteralText("Set to " + instance.chunkCullingEnabled), false);
++                                return 1;
++                            })
++            );
++        });
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/java/me/jellysquid/mods/sodium/client/cullvis/CullInfo.java b/src/main/java/me/jellysquid/mods/sodium/client/cullvis/CullInfo.java
+new file mode 100644
+index 0000000..e92cdda
+--- /dev/null
++++ b/src/main/java/me/jellysquid/mods/sodium/client/cullvis/CullInfo.java
+@@ -0,0 +1,13 @@
++package me.jellysquid.mods.sodium.client.cullvis;
++
++import net.minecraft.util.math.Direction;
++
++public class CullInfo {
++    public boolean culled;
++
++    public boolean[] checkDirs;
++
++    public CullInfo() {
++        this.checkDirs = new boolean[6];
++    }
++}
+diff --git a/src/main/java/me/jellysquid/mods/sodium/client/cullvis/CullState.java b/src/main/java/me/jellysquid/mods/sodium/client/cullvis/CullState.java
+new file mode 100644
+index 0000000..8c8bb53
+--- /dev/null
++++ b/src/main/java/me/jellysquid/mods/sodium/client/cullvis/CullState.java
+@@ -0,0 +1,21 @@
++package me.jellysquid.mods.sodium.client.cullvis;
++
++import net.minecraft.util.math.Vec3i;
++
++import java.util.HashMap;
++import java.util.HashSet;
++
++public class CullState {
++    public HashMap<Vec3i, CullInfo> cullInfo = new HashMap();
++
++    public HashSet<Vec3i> visible = new HashSet<>();
++
++    public boolean drawChunkBorders = true;
++
++    private static CullState instance = new CullState();
++
++    public static CullState getInstance() {
++        return instance;
++    }
++}
++
+diff --git a/src/main/java/me/jellysquid/mods/sodium/client/cullvis/CullingVisualizer.java b/src/main/java/me/jellysquid/mods/sodium/client/cullvis/CullingVisualizer.java
+new file mode 100644
+index 0000000..b234b0c
+--- /dev/null
++++ b/src/main/java/me/jellysquid/mods/sodium/client/cullvis/CullingVisualizer.java
+@@ -0,0 +1,74 @@
++package me.jellysquid.mods.sodium.client.cullvis;
++
++import me.jellysquid.mods.sodium.client.util.math.FrustumExtended;
++import net.minecraft.client.MinecraftClient;
++import net.minecraft.client.util.math.Vector3f;
++import net.minecraft.util.math.Direction;
++import net.minecraft.util.math.Vec3i;
++
++import java.util.HashSet;
++
++import static me.jellysquid.mods.sodium.client.cullvis.Draw.*;
++
++public class CullingVisualizer {
++    public static CullState state = new CullState();
++
++    public static void draw() {
++        start(MinecraftClient.getInstance().gameRenderer.getCamera());
++        drawCameraFrustum();
++        drawSubchunkBorders();
++        drawBfsDirections();
++        end();
++    }
++
++    private static void drawCameraFrustum() {
++        setColor(1.0F, 0.0F, 0.0F, 1.0F);
++    }
++
++    private static void drawSubchunkBorders() {
++        for (Vec3i chunk : state.visible) {
++            setColor(1.0F, 0.0F, 1.0F, 1.0F);
++            int cx = chunk.getX() * 16;
++            int cy = chunk.getY() * 16;
++            int cz = chunk.getZ() * 16;
++            int dx = cx + 16;
++            int dy = cy + 16;
++            int dz = cz + 16;
++
++            // X facing lines
++            line(cx, cy, cz, dx, cy, cz);
++            line(cx, dy, cz, dx, dy, cz);
++            line(cx, cy, dz, dx, cy, dz);
++            line(cx, dy, dz, dx, dy, dz);
++
++            // Y facing lines
++            line(cx, cy, cz, cx, dy, cz);
++            line(dx, cy, cz, dx, dy, cz);
++            line(cx, cy, dz, cx, dy, dz);
++            line(dx, cy, dz, dx, dy, dz);
++
++            // Z facing lines
++            line(cx, cy, cz, cx, cy, dz);
++            line(dx, cy, cz, dx, cy, dz);
++            line(cx, dy, cz, cx, dy, dz);
++            line(dx, dy, cz, dx, dy, dz);
++        }
++    }
++
++    private static void drawBfsDirections() {
++        for (Vec3i chunk : state.cullInfo.keySet()) {
++            int cx = chunk.getX() * 16 + 8;
++            int cy = chunk.getY() * 16 + 8;
++            int cz = chunk.getZ() * 16 + 8;
++            CullInfo info = state.cullInfo.get(chunk);
++            setColor(0.0F, 1.0F, 0.0F, 0.5F);
++            for (int i = 0; i < 6; i++) {
++                if (!info.checkDirs[i]) {
++                    continue;
++                }
++                Vector3f vec = Direction.byId(i).getUnitVector();
++                line(cx, cy, cz, cx + (int) vec.getX() * 8, cy + (int) vec.getY() * 8, cz + (int) vec.getZ() * 8);
++            }
++        }
++    }
++}
+diff --git a/src/main/java/me/jellysquid/mods/sodium/client/cullvis/Draw.java b/src/main/java/me/jellysquid/mods/sodium/client/cullvis/Draw.java
+new file mode 100644
+index 0000000..0eaaf6e
+--- /dev/null
++++ b/src/main/java/me/jellysquid/mods/sodium/client/cullvis/Draw.java
+@@ -0,0 +1,64 @@
++package me.jellysquid.mods.sodium.client.cullvis;
++
++import com.mojang.blaze3d.systems.RenderSystem;
++import net.minecraft.client.render.BufferBuilder;
++import net.minecraft.client.render.Camera;
++import net.minecraft.client.render.Tessellator;
++import net.minecraft.client.render.VertexFormats;
++import net.minecraft.client.util.math.Vector4f;
++
++class Draw {
++    private static Camera camera;
++    private static Tessellator tessellator;
++    private static BufferBuilder builder;
++
++    // draw state
++    private static Vector4f color;
++
++    /*
++    Prepares rendering subsystem for drawing various shapes.
++     */
++    public static void start(Camera cam) {
++        camera = cam;
++
++        RenderSystem.enableDepthTest();
++        RenderSystem.shadeModel(7425);
++        RenderSystem.enableAlphaTest();
++        RenderSystem.defaultAlphaFunc();
++        RenderSystem.disableTexture();
++        RenderSystem.disableBlend();
++        RenderSystem.lineWidth(2.0F);
++
++        tessellator = Tessellator.getInstance();
++        builder = tessellator.getBuffer();
++        builder.begin(1, VertexFormats.POSITION_COLOR);
++    }
++
++    /*
++    Finishes drawing.
++     */
++    public static void end() {
++        tessellator.draw();
++        RenderSystem.enableBlend();
++        RenderSystem.enableTexture();
++        RenderSystem.shadeModel(7424);
++        RenderSystem.lineWidth(1.0F);
++    }
++
++    public static void setColor(float r, float g, float b, float a) {
++        color = new Vector4f(r, g, b, a);
++    }
++
++    public static void line(int ax, int ay, int az, int bx, int by, int bz) {
++        builder.vertex(
++                (double) ax - camera.getPos().x,
++                (double) ay - camera.getPos().y,
++                (double) az - camera.getPos().z
++        ).color(color.getX(), color.getY(), color.getZ(), color.getW()).next();
++        builder.vertex(
++                (double) bx - camera.getPos().x,
++                (double) by - camera.getPos().y,
++                (double) bz - camera.getPos().z
++        ).color(color.getX(), color.getY(), color.getZ(), color.getW()).next();
++    }
++}
+diff --git a/src/main/java/me/jellysquid/mods/sodium/client/render/chunk/ChunkRenderManager.java b/src/main/java/me/jellysquid/mods/sodium/client/render/chunk/ChunkRenderManager.java
+index a576f47..4162300 100644
+--- a/src/main/java/me/jellysquid/mods/sodium/client/render/chunk/ChunkRenderManager.java
++++ b/src/main/java/me/jellysquid/mods/sodium/client/render/chunk/ChunkRenderManager.java
+@@ -1,5 +1,6 @@
+ package me.jellysquid.mods.sodium.client.render.chunk;
+ 
++import com.mojang.blaze3d.systems.RenderSystem;
+ import it.unimi.dsi.fastutil.ints.IntIterator;
+ import it.unimi.dsi.fastutil.ints.IntList;
+ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+@@ -83,7 +84,7 @@ public class ChunkRenderManager<T extends ChunkGraphicsState> implements ChunkSt
+     private final SodiumWorldRenderer renderer;
+     private final ClientWorld world;
+ 
+-    private final ChunkCuller culler;
++    public final ChunkCuller culler;
+     private final boolean useBlockFaceCulling;
+ 
+     private float cameraX, cameraY, cameraZ;
+diff --git a/src/main/java/me/jellysquid/mods/sodium/client/render/chunk/cull/graph/ChunkGraphCuller.java b/src/main/java/me/jellysquid/mods/sodium/client/render/chunk/cull/graph/ChunkGraphCuller.java
+index 012fde9..feacbc4 100644
+--- a/src/main/java/me/jellysquid/mods/sodium/client/render/chunk/cull/graph/ChunkGraphCuller.java
++++ b/src/main/java/me/jellysquid/mods/sodium/client/render/chunk/cull/graph/ChunkGraphCuller.java
+@@ -3,21 +3,19 @@ package me.jellysquid.mods.sodium.client.render.chunk.cull.graph;
+ import it.unimi.dsi.fastutil.ints.IntArrayList;
+ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
++import me.jellysquid.mods.sodium.client.cullvis.CullInfo;
++import me.jellysquid.mods.sodium.client.cullvis.CullState;
++import me.jellysquid.mods.sodium.client.cullvis.CullingVisualizer;
+ import me.jellysquid.mods.sodium.client.render.chunk.cull.ChunkCuller;
+ import me.jellysquid.mods.sodium.client.util.math.FrustumExtended;
+ import me.jellysquid.mods.sodium.common.util.DirectionUtil;
+ import net.minecraft.client.MinecraftClient;
+ import net.minecraft.client.render.Camera;
+ import net.minecraft.client.render.chunk.ChunkOcclusionData;
+-import net.minecraft.util.math.BlockPos;
+-import net.minecraft.util.math.ChunkSectionPos;
+-import net.minecraft.util.math.Direction;
+-import net.minecraft.util.math.MathHelper;
++import net.minecraft.util.math.*;
+ import net.minecraft.world.World;
+ 
+-import java.util.ArrayList;
+-import java.util.Comparator;
+-import java.util.List;
++import java.util.*;
+ 
+ public class ChunkGraphCuller implements ChunkCuller {
+     private final Long2ObjectMap<ChunkGraphNode> nodes = new Long2ObjectOpenHashMap<>();
+@@ -39,27 +37,48 @@ public class ChunkGraphCuller implements ChunkCuller {
+ 
+     @Override
+     public IntArrayList computeVisible(Camera camera, FrustumExtended frustum, int frame, boolean spectator) {
++        CullState.getInstance().visible = new HashSet<>();
++
++        // for investigation purposes: this method really only enqueues
++        // the root node (the subchunk the camera is in)
+         this.initSearch(camera, frustum, frame, spectator);
+ 
+         ChunkGraphIterationQueue queue = this.visible;
+ 
++        // cullvis
++        HashMap<Vec3i, CullInfo> chunks = new HashMap<>();
++
+         for (int i = 0; i < queue.size(); i++) {
+             ChunkGraphNode node = queue.getNode(i);
+             Direction flow = queue.getDirection(i);
+ 
++            // cullvis
++            Vec3i pos = new Vec3i(node.getChunkX(), node.getChunkY(), node.getChunkZ());
++            if (!chunks.containsKey(pos)) {
++                chunks.put(pos, new CullInfo());
++            }
++
+             for (Direction dir : DirectionUtil.ALL_DIRECTIONS) {
+-                if (this.isCulled(node, flow, dir)) {
++                boolean isCulled = this.isCulled(node, flow, dir);
++                CullInfo info = chunks.get(pos);
++                info.culled = isCulled && info.culled;
++                if (isCulled) {
+                     continue;
+                 }
+ 
++                // adj != null check is to prevent going backwards in the graph i think
+                 ChunkGraphNode adj = node.getConnectedNode(dir);
+ 
+                 if (adj != null && this.isWithinRenderDistance(adj)) {
+                     this.bfsEnqueue(node, adj, dir.getOpposite());
++                    chunks.get(pos).checkDirs[dir.getId()] = true;
+                 }
+             }
+         }
+ 
++        // cullvis
++        CullState.getInstance().cullInfo = chunks;
++
+         return this.visible.getOrderedIdList();
+     }
+ 
+@@ -106,7 +125,11 @@ public class ChunkGraphCuller implements ChunkCuller {
+             }
+ 
+             this.visible.add(rootNode, null);
++            CullState.getInstance().visible.add(new Vec3i(rootNode.getChunkX(), rootNode.getChunkY(), rootNode.getChunkZ()));
+         } else {
++            // for chunk culling investigations: ignore
++            // i think this case only ever gets hit when the subchunk the camera is in
++            // is not loaded
+             chunkY = MathHelper.clamp(origin.getY() >> 4, 0, 15);
+ 
+             List<ChunkGraphNode> bestNodes = new ArrayList<>();
+@@ -147,6 +170,7 @@ public class ChunkGraphCuller implements ChunkCuller {
+         node.setLastVisibleFrame(this.activeFrame);
+         node.setCullingState(parent.getCullingState(), flow);
+ 
++        CullState.getInstance().visible.add(new Vec3i(node.getChunkX(), node.getChunkY(), node.getChunkZ()));
+         this.visible.add(node, flow);
+     }
+ 
+diff --git a/src/main/java/me/jellysquid/mods/sodium/mixin/SodiumMixinPlugin.java b/src/main/java/me/jellysquid/mods/sodium/mixin/SodiumMixinPlugin.java
+index 8c4bec2..ec81517 100644
+--- a/src/main/java/me/jellysquid/mods/sodium/mixin/SodiumMixinPlugin.java
++++ b/src/main/java/me/jellysquid/mods/sodium/mixin/SodiumMixinPlugin.java
+@@ -48,6 +48,11 @@ public class SodiumMixinPlugin implements IMixinConfigPlugin {
+         String mixin = mixinClassName.substring(MIXIN_PACKAGE_ROOT.length());
+         Option option = this.config.getEffectiveOptionForMixin(mixin);
+ 
++        // HACK: allow all cullvis mixins
++        if (mixin.startsWith("cullvis")) {
++            return true;
++        }
++
+         if (option == null) {
+             this.logger.error("No rules matched mixin '{}', treating as foreign and disabling!", mixin);
+ 
+diff --git a/src/main/java/me/jellysquid/mods/sodium/mixin/core/frustum/MixinFrustum.java b/src/main/java/me/jellysquid/mods/sodium/mixin/core/frustum/MixinFrustum.java
+index 8c6af49..c048da2 100644
+--- a/src/main/java/me/jellysquid/mods/sodium/mixin/core/frustum/MixinFrustum.java
++++ b/src/main/java/me/jellysquid/mods/sodium/mixin/core/frustum/MixinFrustum.java
+@@ -12,14 +12,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+ 
+ @Mixin(Frustum.class)
+ public class MixinFrustum implements FrustumExtended {
+-    private float xF, yF, zF;
++    public float xF, yF, zF;
+ 
+-    private float nxX, nxY, nxZ, nxW;
+-    private float pxX, pxY, pxZ, pxW;
+-    private float nyX, nyY, nyZ, nyW;
+-    private float pyX, pyY, pyZ, pyW;
+-    private float nzX, nzY, nzZ, nzW;
+-    private float pzX, pzY, pzZ, pzW;
++    public float nxX, nxY, nxZ, nxW;
++    public float pxX, pxY, pxZ, pxW;
++    public float nyX, nyY, nyZ, nyW;
++    public float pyX, pyY, pyZ, pyW;
++    public float nzX, nzY, nzZ, nzW;
++    public float pzX, pzY, pzZ, pzW;
+ 
+     @Inject(method = "setPosition", at = @At("HEAD"))
+     private void prePositionUpdate(double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {
+diff --git a/src/main/java/me/jellysquid/mods/sodium/mixin/cullvis/ChunkBorderDebugRenderer.java b/src/main/java/me/jellysquid/mods/sodium/mixin/cullvis/ChunkBorderDebugRenderer.java
+new file mode 100644
+index 0000000..35a3a20
+--- /dev/null
++++ b/src/main/java/me/jellysquid/mods/sodium/mixin/cullvis/ChunkBorderDebugRenderer.java
+@@ -0,0 +1,23 @@
++package me.jellysquid.mods.sodium.mixin.cullvis;
++
++import me.jellysquid.mods.sodium.client.cullvis.CullState;
++import me.jellysquid.mods.sodium.client.cullvis.CullingVisualizer;
++import net.minecraft.client.render.VertexConsumerProvider;
++import net.minecraft.client.util.math.MatrixStack;
++import org.spongepowered.asm.mixin.Mixin;
++import org.spongepowered.asm.mixin.injection.At;
++import org.spongepowered.asm.mixin.injection.Inject;
++import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
++
++import java.util.Objects;
++
++@Mixin(net.minecraft.client.render.debug.ChunkBorderDebugRenderer.class)
++public abstract class ChunkBorderDebugRenderer {
++    @Inject(method = "render", cancellable = true, at = @At("HEAD"))
++    private void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, double cameraX, double cameraY, double cameraZ, CallbackInfo info) {
++        CullingVisualizer.draw();
++        if (!CullState.getInstance().drawChunkBorders) {
++            info.cancel();
++        }
++    }
++}
+diff --git a/src/main/java/me/jellysquid/mods/sodium/mixin/cullvis/CommandFill.java b/src/main/java/me/jellysquid/mods/sodium/mixin/cullvis/CommandFill.java
+new file mode 100644
+index 0000000..0329337
+--- /dev/null
++++ b/src/main/java/me/jellysquid/mods/sodium/mixin/cullvis/CommandFill.java
+@@ -0,0 +1,14 @@
++package me.jellysquid.mods.sodium.mixin.cullvis;
++
++import net.minecraft.server.command.FillCommand;
++import org.spongepowered.asm.mixin.Mixin;
++import org.spongepowered.asm.mixin.injection.Constant;
++import org.spongepowered.asm.mixin.injection.ModifyConstant;
++
++@Mixin(FillCommand.class)
++public abstract class CommandFill {
++    @ModifyConstant(method = "execute", constant = @Constant(intValue = 32768))
++    private static int execute(int original) {
++        return 1 << 30;
++    }
++}
+diff --git a/src/main/java/me/jellysquid/mods/sodium/mixin/features/block/MixinWorldRenderer.java b/src/main/java/me/jellysquid/mods/sodium/mixin/features/block/MixinWorldRenderer.java
+index 1fc4dad..200bb73 100644
+--- a/src/main/java/me/jellysquid/mods/sodium/mixin/features/block/MixinWorldRenderer.java
++++ b/src/main/java/me/jellysquid/mods/sodium/mixin/features/block/MixinWorldRenderer.java
+@@ -7,7 +7,6 @@ import net.minecraft.client.render.GameRenderer;
+ import net.minecraft.client.render.LightmapTextureManager;
+ import net.minecraft.client.render.WorldRenderer;
+ import net.minecraft.client.util.math.MatrixStack;
+-import net.minecraft.client.world.ClientWorld;
+ import net.minecraft.util.math.Matrix4f;
+ import org.spongepowered.asm.mixin.Mixin;
+ import org.spongepowered.asm.mixin.injection.At;
+@@ -29,10 +28,10 @@ public class MixinWorldRenderer {
+     }
+ 
+     @Redirect(method = "getEntitiesDebugString", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/WorldRenderer;regularEntityCount:I"))
+-    private int hidEntityCount(WorldRenderer instance){
+-        if(SodiumWorldRenderer.getInstance().getUseEntityCulling()){
++    private int hidEntityCount(WorldRenderer instance) {
++        if (SodiumWorldRenderer.getInstance().getUseEntityCulling()) {
+             return -1;
+         }
+-        return  instance.regularEntityCount;
++        return instance.regularEntityCount;
+     }
+ }
+diff --git a/src/main/java/me/jellysquid/mods/sodium/mixin/features/debug/MixinDebugHud.java b/src/main/java/me/jellysquid/mods/sodium/mixin/features/debug/MixinDebugHud.java
+index bc0ab98..df295ae 100644
+--- a/src/main/java/me/jellysquid/mods/sodium/mixin/features/debug/MixinDebugHud.java
++++ b/src/main/java/me/jellysquid/mods/sodium/mixin/features/debug/MixinDebugHud.java
+@@ -2,6 +2,7 @@ package me.jellysquid.mods.sodium.mixin.features.debug;
+ 
+ import com.google.common.collect.Lists;
+ import me.jellysquid.mods.sodium.client.SodiumClientMod;
++import me.jellysquid.mods.sodium.client.cullvis.CullState;
+ import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
+ import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderBackend;
+ import net.minecraft.client.gui.hud.DebugHud;
+diff --git a/src/main/resources/fabric.mod.json b/src/main/resources/fabric.mod.json
+index 7bbf4d3..37c1de2 100644
+--- a/src/main/resources/fabric.mod.json
++++ b/src/main/resources/fabric.mod.json
+@@ -28,7 +28,8 @@
+     "sodium.mixins.json"
+   ],
+   "depends": {
+-    "fabricloader": ">=0.8.0"
++    "fabricloader": ">=0.8.0",
++    "fabric": "*"
+   },
+   "breaks": {
+     "optifabric": "*",
+diff --git a/src/main/resources/sodium.mixins.json b/src/main/resources/sodium.mixins.json
+index db566dd..daa6c71 100644
+--- a/src/main/resources/sodium.mixins.json
++++ b/src/main/resources/sodium.mixins.json
+@@ -20,6 +20,8 @@
+     "core.pipeline.MixinBufferBuilder",
+     "core.pipeline.MixinVertexConsumer",
+     "core.pipeline.MixinVertexFormat",
++    "cullvis.ChunkBorderDebugRenderer",
++    "cullvis.CommandFill",
+     "features.block.MixinBlockModelRenderer",
+     "features.block.MixinWorldRenderer",
+     "features.buffer_builder.fast_advance.MixinBufferBuilder",

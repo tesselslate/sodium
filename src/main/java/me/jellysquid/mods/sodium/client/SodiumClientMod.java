@@ -1,5 +1,6 @@
 package me.jellysquid.mods.sodium.client;
 
+import me.jellysquid.mods.sodium.client.cullvis.Commands;
 import me.jellysquid.mods.sodium.client.gui.SodiumGameOptions;
 import me.jellysquid.mods.sodium.client.util.UnsafeUtil;
 import net.fabricmc.api.ClientModInitializer;
@@ -24,6 +25,8 @@ public class SodiumClientMod implements ClientModInitializer {
                 .getVersion()
                 .getFriendlyString()
                 .split("\\+")[0];
+
+        Commands.initialize();
     }
 
     public static SodiumGameOptions options() {
