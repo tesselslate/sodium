@@ -16,7 +16,7 @@ public abstract class ChunkBorderDebugRenderer {
     @Inject(method = "render", cancellable = true, at = @At("HEAD"))
     private void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, double cameraX, double cameraY, double cameraZ, CallbackInfo info) {
         CullingVisualizer.draw();
-        if (!CullState.getInstance().drawChunkBorders) {
+        if (!CullingVisualizer.drawChunkBorders) {
             info.cancel();
         }
     }

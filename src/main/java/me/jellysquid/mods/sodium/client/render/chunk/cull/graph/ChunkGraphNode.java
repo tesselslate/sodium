@@ -15,10 +15,10 @@ public class ChunkGraphNode {
     private final int id;
     private final int chunkX, chunkY, chunkZ;
 
-    private int lastVisibleFrame = -1;
+    public int lastVisibleFrame = -1;
 
-    private long visibilityData;
-    private byte cullingState;
+    public long visibilityData;
+    public byte cullingState;
 
     public ChunkGraphNode(int chunkX, int chunkY, int chunkZ, int id) {
         this.chunkX = chunkX;

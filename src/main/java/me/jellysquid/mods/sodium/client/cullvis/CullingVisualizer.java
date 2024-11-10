@@ -1,17 +1,17 @@
 package me.jellysquid.mods.sodium.client.cullvis;
 
-import me.jellysquid.mods.sodium.client.util.math.FrustumExtended;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.debug.DebugRenderer;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
-
-import java.util.HashSet;
 
 import static me.jellysquid.mods.sodium.client.cullvis.Draw.*;
 
 public class CullingVisualizer {
     public static CullState state = new CullState();
+
+    public static boolean drawChunkBorders = true;
 
     public static void draw() {
         start(MinecraftClient.getInstance().gameRenderer.getCamera());
@@ -19,6 +19,8 @@ public class CullingVisualizer {
         drawSubchunkBorders();
         drawBfsDirections();
         end();
+
+        drawSubchunkInfo();
     }
 
     private static void drawCameraFrustum() {
@@ -56,19 +58,33 @@ public class CullingVisualizer {
     }
 
     private static void drawBfsDirections() {
+        setColor(0.0F, 1.0F, 0.0F, 0.5F);
+
         for (Vec3i chunk : state.cullInfo.keySet()) {
             int cx = chunk.getX() * 16 + 8;
             int cy = chunk.getY() * 16 + 8;
             int cz = chunk.getZ() * 16 + 8;
             CullInfo info = state.cullInfo.get(chunk);
-            setColor(0.0F, 1.0F, 0.0F, 0.5F);
+
             for (int i = 0; i < 6; i++) {
-                if (!info.checkDirs[i]) {
+                if (!info.flowDirs[i]) {
                     continue;
                 }
+
                 Vector3f vec = Direction.byId(i).getUnitVector();
                 line(cx, cy, cz, cx + (int) vec.getX() * 8, cy + (int) vec.getY() * 8, cz + (int) vec.getZ() * 8);
             }
         }
+    }
+
+    private static void drawSubchunkInfo() {
+        state.cullInfo.forEach((pos, info) -> {
+            int cx = pos.getX() * 16 + 8;
+            int cy = pos.getY() * 16 + 8;
+            int cz = pos.getZ() * 16 + 8;
+
+            String infoString = String.format("Culling state: %s", info.stringCullingState());
+            DebugRenderer.drawString(infoString, cx, cy, cz, -1, 0.05f, true, 0, false);
+        });
     }
 }

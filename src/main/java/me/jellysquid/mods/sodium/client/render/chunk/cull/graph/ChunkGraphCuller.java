@@ -3,9 +3,7 @@ package me.jellysquid.mods.sodium.client.render.chunk.cull.graph;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import me.jellysquid.mods.sodium.client.cullvis.CullInfo;
 import me.jellysquid.mods.sodium.client.cullvis.CullState;
-import me.jellysquid.mods.sodium.client.cullvis.CullingVisualizer;
 import me.jellysquid.mods.sodium.client.render.chunk.cull.ChunkCuller;
 import me.jellysquid.mods.sodium.client.util.math.FrustumExtended;
 import me.jellysquid.mods.sodium.common.util.DirectionUtil;
@@ -46,24 +44,20 @@ public class ChunkGraphCuller implements ChunkCuller {
         ChunkGraphIterationQueue queue = this.visible;
 
         // cullvis
-        HashMap<Vec3i, CullInfo> chunks = new HashMap<>();
+        CullState.getInstance().reset();
+        CullState.getInstance().activeFrame = this.activeFrame;
 
         for (int i = 0; i < queue.size(); i++) {
             ChunkGraphNode node = queue.getNode(i);
             Direction flow = queue.getDirection(i);
 
             // cullvis
-            Vec3i pos = new Vec3i(node.getChunkX(), node.getChunkY(), node.getChunkZ());
-            if (!chunks.containsKey(pos)) {
-                chunks.put(pos, new CullInfo());
-
-            }
+            CullState.getInstance().getOrAdd(node).lastVisibleFrame = node.lastVisibleFrame;
+            CullState.getInstance().getOrAdd(node).visibilityData = node.visibilityData;
+            CullState.getInstance().getOrAdd(node).cullingState = node.cullingState;
 
             for (Direction dir : DirectionUtil.ALL_DIRECTIONS) {
-                boolean isCulled = this.isCulled(node, flow, dir);
-                CullInfo info = chunks.get(pos);
-                info.culled = isCulled && info.culled;
-                if (isCulled) {
+                if (this.isCulled(node, flow, dir)) {
                     continue;
                 }
 
@@ -72,13 +66,9 @@ public class ChunkGraphCuller implements ChunkCuller {
 
                 if (adj != null && this.isWithinRenderDistance(adj)) {
                     this.bfsEnqueue(node, adj, dir.getOpposite());
-                    chunks.get(pos).checkDirs[dir.getId()] = true;
                 }
             }
         }
-
-        // cullvis
-        CullState.getInstance().cullInfo = chunks;
 
         return this.visible.getOrderedIdList();
     }
@@ -126,7 +116,8 @@ public class ChunkGraphCuller implements ChunkCuller {
             }
 
             this.visible.add(rootNode, null);
-            CullState.getInstance().visible.add(new Vec3i(rootNode.getChunkX(), rootNode.getChunkY(), rootNode.getChunkZ()));
+            CullState.getInstance().visible
+                    .add(new Vec3i(rootNode.getChunkX(), rootNode.getChunkY(), rootNode.getChunkZ()));
         } else {
             // for chunk culling investigations: ignore
             // i think this case only ever gets hit when the subchunk the camera is in
@@ -158,7 +149,6 @@ public class ChunkGraphCuller implements ChunkCuller {
         }
     }
 
-
     private void bfsEnqueue(ChunkGraphNode parent, ChunkGraphNode node, Direction flow) {
         if (node.getLastVisibleFrame() == this.activeFrame) {
             return;
@@ -173,6 +163,9 @@ public class ChunkGraphCuller implements ChunkCuller {
 
         CullState.getInstance().visible.add(new Vec3i(node.getChunkX(), node.getChunkY(), node.getChunkZ()));
         this.visible.add(node, flow);
+
+        // cullvis
+        CullState.getInstance().getOrAdd(parent).flowDirs[flow.getOpposite().getId()] = true;
     }
 
     private void connectNeighborNodes(ChunkGraphNode node) {
@@ -200,7 +193,8 @@ public class ChunkGraphCuller implements ChunkCuller {
     }
 
     private ChunkGraphNode findAdjacentNode(ChunkGraphNode node, Direction dir) {
-        return this.getNode(node.getChunkX() + dir.getOffsetX(), node.getChunkY() + dir.getOffsetY(), node.getChunkZ() + dir.getOffsetZ());
+        return this.getNode(node.getChunkX() + dir.getOffsetX(), node.getChunkY() + dir.getOffsetY(),
+                node.getChunkZ() + dir.getOffsetZ());
     }
 
     private ChunkGraphNode getNode(int x, int y, int z) {

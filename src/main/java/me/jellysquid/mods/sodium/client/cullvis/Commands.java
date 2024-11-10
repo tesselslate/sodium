@@ -14,7 +14,9 @@ public class Commands {
                     literal("capture_chunks").executes(ctx -> {
                         CullingVisualizer.state.cullInfo = CullState.getInstance().cullInfo;
                         CullingVisualizer.state.visible = CullState.getInstance().visible;
+                        CullingVisualizer.state.activeFrame = CullState.getInstance().activeFrame;
                         ctx.getSource().sendFeedback(new LiteralText("Chunks visible: " + CullingVisualizer.state.visible.size()), false);
+                        ctx.getSource().sendFeedback(new LiteralText("Active frame: " + CullingVisualizer.state.activeFrame), false);
                         return 1;
                     })
             );
@@ -23,7 +25,7 @@ public class Commands {
             dispatcher.register(
                     literal("toggle_chunk_borders")
                             .executes(ctx -> {
-                                CullState.getInstance().drawChunkBorders = !CullState.getInstance().drawChunkBorders;
+                                CullingVisualizer.drawChunkBorders = !CullingVisualizer.drawChunkBorders;
                                 return 1;
                             })
             );
