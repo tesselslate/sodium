@@ -2,3 +2,5 @@ accessWidener v2 named
 accessible class net/minecraft/client/model/ModelPart$Vertex
 accessible class net/minecraft/client/model/ModelPart$Quad
 accessible class net/minecraft/client/texture/Sprite$Interpolation
+accessible field net/minecraft/client/render/WorldRenderer capturedFrustum Lnet/minecraft/client/render/Frustum;
+accessible field net/minecraft/client/render/WorldRenderer shouldCaptureFrustum Z

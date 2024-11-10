@@ -13,21 +13,6 @@ import static net.minecraft.server.command.CommandManager.literal;
 import java.lang.reflect.Field;
 
 public class Commands {
-    private static Field shouldCaptureFrustumField;
-    private static Field capturedFrustumField;
-
-    static {
-        try {
-            Commands.shouldCaptureFrustumField = WorldRenderer.class.getDeclaredField("shouldCaptureFrustum");
-            Commands.shouldCaptureFrustumField.setAccessible(true);
-
-            Commands.capturedFrustumField = WorldRenderer.class.getDeclaredField("capturedFrustum");
-            Commands.capturedFrustumField.setAccessible(true);
-        } catch (Exception e) {
-            throw new ExceptionInInitializerError(e);
-        }
-    }
-
     public static void initialize() {
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             dispatcher.register(
@@ -73,20 +58,15 @@ public class Commands {
     }
 
     public static void toggleFrustumCapture() {
-        try {
-            Frustum capturedFrustum = (Frustum) Commands.capturedFrustumField
-                    .get(MinecraftClient.getInstance().worldRenderer);
-            if (capturedFrustum == null) {
-                Commands.shouldCaptureFrustumField.setBoolean(MinecraftClient.getInstance().worldRenderer, true);
-                sendChat(new LiteralText("Captured camera frustum"));
-            } else {
-                Commands.capturedFrustumField.set(MinecraftClient.getInstance().worldRenderer, null);
-                sendChat(new LiteralText("Cleared camera frustum"));
-            }
-        } catch (Exception e) {
-            sendError(new LiteralText("Failed to toggle frustum: " + e.toString()));
-        }
+        WorldRenderer renderer = MinecraftClient.getInstance().worldRenderer;
 
+        if (renderer.capturedFrustum == null) {
+            renderer.shouldCaptureFrustum = true;
+            sendChat(new LiteralText("Captured camera frustum"));
+        } else {
+            renderer.capturedFrustum = null;
+            sendChat(new LiteralText("Cleared camera frustum"));
+        }
     }
 
     public static void toggleSubchunkInfo() {
