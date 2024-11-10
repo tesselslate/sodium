@@ -2,24 +2,31 @@
 
 Fork of Sodium speedrunning build for visualizing chunk culling behavior.
 
-# Usage
+# Hotkeys
 
-Press F3+G (chunk borders) to show culling information.
+## F3+W
 
-# Commands
+Captures the current set of visible subchunks (with some additional information about chunk culling state.)
 
-## /capture_chunks
+This can also be accessed via the `/capture_chunks` command.
 
-Store the currently visible subchunks and other culling-related information to
-be looked at with F3+G.
+## F3+E
 
-## /toggle_chunk_borders
+Toggles the display of captured subchunk info (if any.)
 
-Toggles normal chunk borders showing with F3+G.
+This can also be accesed via the `/toggle_subchunk_info` command.
 
-## /toggle_culling
+## F3+R
 
-Executing once turns culling off, executing again turns culling back on, etc.
+Captures the current camera frustum. If the frustum has already been captured, clears the existing frustum capture.
+
+This can also be accessed via the `/toggle_frustum` command.
+
+## F3+L
+
+Toggles occlusion culling.
+
+This can also be accessed via the `/toggle_culling` command.
 
 ---
 ### License
