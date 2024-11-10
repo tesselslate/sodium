@@ -36,6 +36,10 @@ public class CullingVisualizer {
         end();
     }
 
+    public static void drawCameraFrustum() {
+
+    }
+
     public static void drawSubchunkBorders() {
         start(MinecraftClient.getInstance().gameRenderer.getCamera());
 

@@ -23,6 +23,10 @@ public abstract class Keyboard {
                 Commands.toggleSubchunkInfo();
                 info.setReturnValue(true);
                 return;
+            case 82: // r
+                Commands.toggleFrustumCapture();
+                info.setReturnValue(true);
+                return;
             case 76: // l
                 Commands.toggleCulling();
                 info.setReturnValue(true);
@@ -37,6 +41,7 @@ public abstract class Keyboard {
 
             chatHud.addMessage(new LiteralText("F3 + W = Capture visible chunks"));
             chatHud.addMessage(new LiteralText("F3 + E = Toggle subchunk info"));
+            chatHud.addMessage(new LiteralText("F3 + R = Toggle captured frustum"));
             chatHud.addMessage(new LiteralText("F3 + L = Toggle occlusion culling"));
             return;
         }
