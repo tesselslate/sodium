@@ -11,7 +11,7 @@ import static me.jellysquid.mods.sodium.client.cullvis.Draw.*;
 public class CullingVisualizer {
     public static CullState state = new CullState();
 
-    public static boolean drawChunkBorders = true;
+    public static boolean shouldDrawSubchunkInfo = false;
 
     public static void drawBfsDirections() {
         start(MinecraftClient.getInstance().gameRenderer.getCamera());
