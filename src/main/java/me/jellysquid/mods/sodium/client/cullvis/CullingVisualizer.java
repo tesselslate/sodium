@@ -13,23 +13,34 @@ public class CullingVisualizer {
 
     public static boolean drawChunkBorders = true;
 
-    public static void draw() {
+    public static void drawBfsDirections() {
         start(MinecraftClient.getInstance().gameRenderer.getCamera());
-        drawCameraFrustum();
-        drawSubchunkBorders();
-        drawBfsDirections();
+
+        setColor(0.0F, 1.0F, 0.0F, 0.5F);
+        for (Vec3i chunk : state.cullInfo.keySet()) {
+            int cx = chunk.getX() * 16 + 8;
+            int cy = chunk.getY() * 16 + 8;
+            int cz = chunk.getZ() * 16 + 8;
+            CullInfo info = state.cullInfo.get(chunk);
+
+            for (int i = 0; i < 6; i++) {
+                if (!info.flowDirs[i]) {
+                    continue;
+                }
+
+                Vector3f vec = Direction.byId(i).getUnitVector();
+                line(cx, cy, cz, cx + (int) vec.getX() * 8, cy + (int) vec.getY() * 8, cz + (int) vec.getZ() * 8);
+            }
+        }
+
         end();
-
-        drawSubchunkInfo();
     }
 
-    private static void drawCameraFrustum() {
-        setColor(1.0F, 0.0F, 0.0F, 1.0F);
-    }
+    public static void drawSubchunkBorders() {
+        start(MinecraftClient.getInstance().gameRenderer.getCamera());
 
-    private static void drawSubchunkBorders() {
+        setColor(1.0F, 0.0F, 1.0F, 1.0F);
         for (Vec3i chunk : state.visible) {
-            setColor(1.0F, 0.0F, 1.0F, 1.0F);
             int cx = chunk.getX() * 16;
             int cy = chunk.getY() * 16;
             int cz = chunk.getZ() * 16;
@@ -55,29 +66,11 @@ public class CullingVisualizer {
             line(cx, dy, cz, cx, dy, dz);
             line(dx, dy, cz, dx, dy, dz);
         }
+
+        end();
     }
 
-    private static void drawBfsDirections() {
-        setColor(0.0F, 1.0F, 0.0F, 0.5F);
-
-        for (Vec3i chunk : state.cullInfo.keySet()) {
-            int cx = chunk.getX() * 16 + 8;
-            int cy = chunk.getY() * 16 + 8;
-            int cz = chunk.getZ() * 16 + 8;
-            CullInfo info = state.cullInfo.get(chunk);
-
-            for (int i = 0; i < 6; i++) {
-                if (!info.flowDirs[i]) {
-                    continue;
-                }
-
-                Vector3f vec = Direction.byId(i).getUnitVector();
-                line(cx, cy, cz, cx + (int) vec.getX() * 8, cy + (int) vec.getY() * 8, cz + (int) vec.getZ() * 8);
-            }
-        }
-    }
-
-    private static void drawSubchunkInfo() {
+    public static void drawSubchunkInfo() {
         state.cullInfo.forEach((pos, info) -> {
             int cx = pos.getX() * 16 + 8;
             int cy = pos.getY() * 16 + 8;
