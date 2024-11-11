@@ -14,7 +14,8 @@ public abstract class MixinDebugHud {
     private List<String> redirectRightTextEarly(DebugHud instance) {
         List<String> strings = ((DebugHudAccessor) instance).invokeGetRightText();
         strings.add("");
-        strings.add("MCSR Sodium " + SodiumClientMod.getVersion());
+        strings.add("! UNVERIFIABLE !");
+        strings.add("MCSR Sodium (cullvis) " + SodiumClientMod.getVersion());
         return strings;
     }
 }
