@@ -2,6 +2,10 @@
 
 Fork of Sodium speedrunning build for visualizing chunk culling behavior.
 
+> [!IMPORTANT]
+> This mod is no longer being updated. See [Pastry](https://github.com/tesselslate/pastry)
+> for these features and more.
+
 # Hotkeys
 
 ## F3+W
